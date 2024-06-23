@@ -1,11 +1,18 @@
-const http = require('http');
 
-const routes = require('./routes/router');
-
-const server = http.createServer(routes);
+const express = require('express');
+const router = require('./routes/router.js');
+const app = express();
 
 const PORT = 5000;
-//запускаем сервер
-server.listen(PORT, ()=>{
-    console.log(`Server is running on port ${PORT}`);
-});
+app.use(express.json());
+app.use('/api',router);
+
+async function startApp(){
+    try{
+        app.listen(PORT,()=>console.log(`Server start on Port: ${PORT}`));
+    }catch(e){
+        console.log(e);
+    }
+}
+
+startApp();

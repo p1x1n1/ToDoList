@@ -1,4 +1,6 @@
-const db = require('./db');
+
+const db = require('../db');
+
 
 // Создание таблицы, если она еще не создана
 db.query(`
@@ -10,7 +12,7 @@ db.query(`
 `).catch(err => console.error('Error creating table:', err));
 
 module.exports = {
-    async getUsers() {
+    async getAll() {
         try {
             const { rows } = await db.query('SELECT * FROM users');
             return rows;
@@ -19,7 +21,7 @@ module.exports = {
         }
     },
 
-    async getUserById(id) {
+    async getOne(id) {
         try {
             const { rows } = await db.query('SELECT * FROM users WHERE id = $1', [id]);
             return rows[0];
@@ -28,7 +30,7 @@ module.exports = {
         }
     },
 
-    async createUser(user) {
+    async create(user) {
         try {
             const { name, age } = user;
             const { rows } = await db.query(
@@ -41,7 +43,7 @@ module.exports = {
         }
     },
 
-    async updateUser(id, user) {
+    async update(id, user) {
         try {
             const fields = [];
             const values = [];
@@ -64,7 +66,7 @@ module.exports = {
         }
     },
 
-    async deleteUser(id) {
+    async delete(id) {
         try {
             const { rowCount } = await db.query('DELETE FROM users WHERE id = $1', [id]);
             return rowCount > 0;
