@@ -1,77 +1,34 @@
-
-const db = require('../db');
-
-
-// Создание таблицы, если она еще не создана
-db.query(`
-    CREATE TABLE IF NOT EXISTS users (
-        id SERIAL PRIMARY KEY,
-        name VARCHAR(255) NOT NULL,
-        age INT NOT NULL
-    )
-`).catch(err => console.error('Error creating table:', err));
+const db = require('../modele');
 
 module.exports = {
-    async getAll() {
-        try {
-            const { rows } = await db.query('SELECT * FROM users');
-            return rows;
-        } catch (err) {
-            return err;
-        }
+    async create(user){
+        const created = await db.create(user);
+        return created;
     },
-
-    async getOne(id) {
-        try {
-            const { rows } = await db.query('SELECT * FROM users WHERE id = $1', [id]);
-            return rows[0];
-        } catch (err) {
-            return err;
-        }
+    async getAll(){
+            const users = await db.findAll();
+            return users;
     },
-
-    async create(user) {
-        try {
-            const { name, age } = user;
-            const { rows } = await db.query(
-                'INSERT INTO users (name, age) VALUES ($1, $2) RETURNING *',
-                [name, age]
-            );
-            return rows[0];
-        } catch (err) {
-            return err;
-        }
-    },
-
-    async update(id, user) {
-        try {
-            const fields = [];
-            const values = [];
-            let query = 'UPDATE users SET ';
-            let count = 1;
-            //формируем строку для ключ-значение 
-            for (const [key, value] of Object.entries(user)) {
-                fields.push(`${key} = $${count}`);
-                values.push(value);
-                count++;
+    async getOne(id){
+            if(!id){
+                throw new Error("id не указан");
             }
-            values.push(id);
-
-            query += fields.join(', ') + ` WHERE id = $${count} RETURNING *`;
-            const { rows } = await db.query(query, values);
-
-            return rows[0];
-        } catch (err) {
-            return err;
-        }
+            const user = await db.findByPk(id);
+            return user;
     },
-
-    async delete(id) {
-        try {
-            const { rowCount } = await db.query('DELETE FROM users WHERE id = $1', [id]);
-            return rowCount > 0;
-        } catch (err) {
-            return err;
+    async update(user,id){
+        if(!id){
+            throw new Error("id не указан");
         }
+        await db.update(user,{where:{id:id}});
+        const Upuser = await db.findByPk(id);
+        return Upuser;
+    },
+    async delete(id){
+        if(!id){
+            throw new Error("id не указан");
+        }
+        const user = await db.destroy({where:{id:id}});
+        return user;
     }
 };
