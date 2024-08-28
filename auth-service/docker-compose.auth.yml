@@ -1,0 +1,44 @@
+version: '3.0'
+
+services:
+  auth-service:
+    container_name: auth-service
+    build:
+      context: ./auth-service
+    env_file:
+      - .production.env
+    volumes:
+      - ./auth-service:/app 
+    ports:
+      - "${AUTH_SERVICE_PORT}:${AUTH_SERVICE_PORT}"
+      - "${AUTH_SERVICE_DEBUG_PORT}:9229"
+    command: npm run start
+    depends_on:
+      - auth-db
+      - rabbitmq
+    environment:
+      DATABASE_URL: postgres://${AUTH_POSTGRES_USER}:${AUTH_POSTGRES_PASSWORD}@auth-db:5432/${AUTH_POSTGRES_DB}
+      RABBITMQ_URL: amqp://rabbitmq:${RABBIT_PORT}
+    restart: always
+
+  auth-db:
+    container_name: auth-db
+    image: ${AUTH_DB_IMAGE}
+    env_file:
+      - .production.env
+    environment:
+      POSTGRES_USER: ${AUTH_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${AUTH_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${AUTH_POSTGRES_DB}
+      PG_DATA: ${PG_DATA}
+    ports:
+      - "${AUTH_DB_PORT}:5432"
+    volumes:
+      - type: volume
+        source: pgdata-auth
+        target: ${PG_DATA}
+    restart: always
+
+volumes:
+  pgdata-auth:
+    driver: local

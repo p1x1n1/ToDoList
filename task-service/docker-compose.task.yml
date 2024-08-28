@@ -1,0 +1,44 @@
+version: '3.0'
+
+services:
+  task-service:
+    container_name: task-service
+    build:
+      context: ./task-service
+    env_file:
+      - .production.env
+    volumes:
+      - ./task-service:/app 
+    ports:
+      - "${TASK_SERVICE_PORT}:${TASK_SERVICE_PORT}"
+      - "${TASK_SERVICE_DEBUG_PORT}:9229"
+    command: npm run start
+    depends_on:
+      - task-db
+      - rabbitmq
+    environment:
+      DATABASE_URL: postgres://${TASK_POSTGRES_USER}:${TASK_POSTGRES_PASSWORD}@task-db:5432/${TASK_POSTGRES_DB}
+      RABBITMQ_URL: amqp://rabbitmq:${RABBIT_PORT}
+    restart: always
+
+  task-db:
+    container_name: task-db
+    image:  ${TASK_DB_IMAGE}
+    env_file:
+      - .production.env
+    environment:
+      POSTGRES_USER: ${TASK_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${TASK_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${TASK_POSTGRES_DB}
+      PG_DATA: ${PG_DATA}
+    ports:
+      - "${TASK_DB_PORT}:5432"
+    volumes:
+      - type: volume
+        source: pgdata-task
+        target: ${PG_DATA}
+    restart: always
+
+volumes:
+  pgdata-task:
+    driver: local
