@@ -1,6 +1,8 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { ColumnEntity } from "src/columns/column.model";
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Subtask } from "src/subtasks/subtasks.model";
+import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+
 
 @Entity('tasks')
 export class Task {
@@ -16,9 +18,13 @@ export class Task {
   @Column({ type: 'text', nullable: true })
   description: string;
 
-  @ApiProperty({ example: 0 , description: 'Порядковый номер' })
+  @ApiProperty({ example: 0, description: 'Порядковый номер' })
   @Column({ type: 'integer', nullable: true })
   order: number;
+
+  @ApiProperty({ example: true, description: 'Статус задачи: завершена или нет' })
+  @Column({ type: 'boolean', default: false })
+  isCompleted: boolean;
 
   @ApiProperty({ example: '2024-07-16T19:57:10Z', description: 'Дата и время создания' })
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
@@ -26,4 +32,7 @@ export class Task {
 
   @ManyToOne(() => ColumnEntity, column => column.tasks, { onDelete: 'CASCADE' })
   column: ColumnEntity;
+
+  @OneToMany(() => Subtask, subtask => subtask.task, { cascade: true })
+  subtasks: Subtask[];
 }

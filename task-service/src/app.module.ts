@@ -11,6 +11,8 @@ import { ColumnEntity } from "./columns/column.model";
 import { Task } from "./tasks/tasks.model";
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { AuthModule } from './auth/auth.module';
+import { SubtasksModule } from './subtasks/subtasks.module';
+import { Subtask } from "./subtasks/subtasks.model";
 
 @Module({
   controllers: [AppController],
@@ -26,13 +28,14 @@ import { AuthModule } from './auth/auth.module';
       username: process.env.TASK_POSTGRES_USER,
       password: process.env.TASK_POSTGRES_PASSWORD,
       database: process.env.TASK_POSTGRES_DB,
-      entities: [Project,ColumnEntity,Task],
+      entities: [Project,ColumnEntity,Task,Subtask],
       synchronize: true      
     }),  
     ProjectsModule,
     ColumnsModule,
     TasksModule,
     AuthModule,
+    SubtasksModule,
   ],
 })
 export class AppModule {

@@ -21,6 +21,12 @@ async function start () {
 
  
   await app.startAllMicroservices();
+   // Разрешаем CORS
+   app.enableCors({
+    origin: 'http://localhost:4200', //'*', // 'http://localhost:4200'
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true, // Установите true, если вы хотите разрешить отправку куки
+  });
 
   const config = new DocumentBuilder()
    .setTitle("TaskListService")

@@ -27,5 +27,6 @@ export class Project {
 
     @OneToMany(() => ColumnEntity, column => column.project, { cascade: true })
     columns: ColumnEntity[];
-  user: any;
+    
+    user: any;
 }
